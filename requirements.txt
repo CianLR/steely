@@ -7,4 +7,3 @@ nose
 limp
 markovify
 textstat
-beautifulsoup4

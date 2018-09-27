@@ -2,7 +2,6 @@ from plugins._lastfm_helpers import *
 import json
 from contextlib import suppress
 from formatting import *
-from steely import config
 
 
 def parse_tags(response):
@@ -14,18 +13,13 @@ def parse_tags(response):
         yield tag_name.lower()
 
 
-def absolute_short_url(relative):
-    return config.FLASKNASC_HOST + relative
-
-
 def get_short_url(url):
-    params = {
-        'key': config.FLASKNASC_KEY,
-        'address': url
-    }
-    path = config.FLASKNASC_HOST + "/new/" + config.FLASKNASC_USER
-    response = requests.get(path, params=params)
-    return absolute_short_url(response.text)
+    data = {'longUrl': url}
+    params = {'key': config.SHORTENER_API_KEY}
+    headers = {'content-type': 'application/json'}
+    response = requests.post(SHORTENER_BASE, params=params,
+                             data=json.dumps(data), headers=headers)
+    return response.json()["id"]
 
 
 def main(bot, author_id, message_parts, thread_id, thread_type, **kwargs):
@@ -35,7 +29,7 @@ def main(bot, author_id, message_parts, thread_id, thread_type, **kwargs):
     elif user:
         username = user['username']
     else:
-        bot.sendMessage(f'include username please or use {COMMAND} set',
+        bot.sendMessage('include username please or use .np set',
                         thread_id=thread_id, thread_type=thread_type)
         return
     latest_track_obj = get_lastfm_request("user.getRecentTracks",

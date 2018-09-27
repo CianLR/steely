@@ -9,6 +9,7 @@ def parse_onlines(async_responses):
     '''
     for async_response in async_responses:
         response = async_response.result()
+        # username = response.json()["recenttracks"]["@attr"]["user"]
         try:
             latest_track_obj = response.json()["recenttracks"]["track"][0]
         except IndexError:
@@ -25,9 +26,6 @@ def parse_playcounts(async_responses):
     for async_response in async_responses:
         response = async_response.result()
         response_obj = response.json()
-        if not "user" in response_obj:
-            yield 0
-            continue
         username = response_obj["user"]["name"]
         playcount = int(response_obj["user"]["playcount"])
         yield playcount
